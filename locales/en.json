@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "hero": {
+    "title": "Minimal and timeless pieces",
+    "subtitle": "Refresh your wardrobe with precise tailoring, natural textures, and modern silhouettes." 
+  },
+  "sections": {
+    "newArrivals": "New Arrivals",
+    "featured": "Featured",
+    "shopAll": "Shop All"
+  },
+  "about": {
+    "title": "Our Story",
+    "mission": "We merge impeccable quality with minimalist design.",
+    "vision": "Building new standards in apparel through sustainable production.",
+    "values": "Transparent sourcing, ethical manufacturing, timeless style."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "address": "123 Fashion Ave, Berlin",
+    "phone": "+49 30 000 00",
+    "email": "support@kleidermafia.co",
+    "hours": "Mon-Fri 10:00 - 19:00",
+    "whatsapp": "Chat on WhatsApp"
+  },
+  "buttons": {
+    "addToCart": "Add to Cart",
+    "checkout": "Checkout",
+    "viewProduct": "View Product"
+  }
+}

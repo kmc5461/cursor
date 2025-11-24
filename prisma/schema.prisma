@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(user)
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  admin
+  user
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  nameTr    String
+  nameEn    String
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Product {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  nameTr      String
+  nameEn      String
+  descriptionTr String
+  descriptionEn String
+  price       Decimal        @db.Decimal(10,2)
+  active      Boolean        @default(true)
+  images      String[]
+  categoryId  String
+  category    Category       @relation(fields: [categoryId], references: [id])
+  variants    Variant[]
+  stocks      Stock[]
+  orderItems  OrderItem[]
+  createdAt   DateTime       @default(now())
+}
+
+enum VariantType {
+  size
+  color
+  material
+}
+
+model Variant {
+  id        String       @id @default(cuid())
+  type      VariantType
+  productId String
+  product   Product      @relation(fields: [productId], references: [id])
+  options   VariantOption[]
+}
+
+model VariantOption {
+  id        String   @id @default(cuid())
+  value     String
+  variantId String
+  variant   Variant  @relation(fields: [variantId], references: [id])
+  stocks    Stock[]
+}
+
+model Stock {
+  id            String         @id @default(cuid())
+  productId     String
+  product       Product        @relation(fields: [productId], references: [id])
+  sizeId        String?
+  colorId       String?
+  materialId    String?
+  sizeOption    VariantOption? @relation("sizeOption", fields: [sizeId], references: [id])
+  colorOption   VariantOption? @relation("colorOption", fields: [colorId], references: [id])
+  materialOption VariantOption? @relation("materialOption", fields: [materialId], references: [id])
+  quantity      Int            @default(0)
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  userId     String?
+  user       User?       @relation(fields: [userId], references: [id])
+  status     OrderStatus @default(pending)
+  total      Decimal     @db.Decimal(10,2)
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+}
+
+enum OrderStatus {
+  pending
+  paid
+  shipped
+  completed
+  cancelled
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(10,2)
+  sizeId     String?
+  colorId    String?
+  materialId String?
+}
+
+model Banner {
+  id          String   @id @default(cuid())
+  titleTr     String
+  titleEn     String
+  subtitleTr  String
+  subtitleEn  String
+  imageUrl    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
