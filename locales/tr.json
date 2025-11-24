@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "shop": "Mağaza",
+    "lookbook": "Lookbook",
+    "blog": "Blog",
+    "contact": "İletişim",
+    "about": "Hakkımızda"
+  },
+  "hero": {
+    "title": "Kusursuz siluet, zamansız dokunuş",
+    "cta": "Yeni gelenleri keşfet"
+  },
+  "footer": {
+    "newsletter": "Yeni koleksiyonlardan haberdar olun",
+    "rights": "Tüm hakları saklıdır"
+  }
+}

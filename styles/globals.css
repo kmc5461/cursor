@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-white text-neutral-900 antialiased font-body;
+}
+
+a {
+  @apply transition-colors duration-200;
+}
+
+.section {
+  @apply py-12 md:py-20;
+}
+
+.container-wide {
+  @apply max-w-6xl mx-auto px-6;
+}
+
+.card {
+  @apply rounded-2xl bg-white shadow-soft border border-neutral-100;
+}
+
+.card-dark {
+  @apply rounded-2xl bg-neutral-900 text-white border border-neutral-800;
+}
