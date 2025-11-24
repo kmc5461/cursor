@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "lookbook": "Lookbook",
+    "blog": "Blog",
+    "contact": "Contact",
+    "about": "About"
+  },
+  "hero": {
+    "title": "Flawless silhouettes, timeless details",
+    "cta": "Explore new arrivals"
+  },
+  "footer": {
+    "newsletter": "Stay ahead with new collections",
+    "rights": "All rights reserved"
+  }
+}

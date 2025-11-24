@@ -1,0 +1,326 @@
+// Prisma schema for enterprise ecommerce platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  USER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  SHIPPED
+  COMPLETED
+  CANCELED
+  REFUNDED
+}
+
+enum ShipmentStatus {
+  CREATED
+  LABEL_PRINTED
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+}
+
+enum MovementType {
+  INBOUND
+  OUTBOUND
+  TRANSFER
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  passwordHash  String?
+  role          Role     @default(USER)
+  locale        String   @default("tr")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  stores        Store[]
+  orders        Order[]
+  favorites     Favorite[]
+  loyaltyPoints LoyaltyPoint[]
+  auditLogs     AuditLog[]
+  addresses     Address[]
+}
+
+model Store {
+  id          String          @id @default(cuid())
+  name        String
+  slug        String          @unique
+  description String?
+  locale      String          @default("tr")
+  products    ProductStore[]
+  warehouses  Warehouse[]
+  orders      Order[]
+  banners     Banner[]
+  influencerLinks InfluencerLink[]
+}
+
+model Product {
+  id           String          @id @default(cuid())
+  title        String
+  description  String
+  descriptionEn String?
+  slug         String          @unique
+  sku          String          @unique
+  price        Decimal         @db.Decimal(10,2)
+  currency     String          @default("TRY")
+  tags         String[]
+  attributes   Json
+  variants     Variant[]
+  categories   Category[]
+  stores       ProductStore[]
+  images       String[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  seoTitle     String?
+  seoDescription String?
+  aiMetadata   Json?
+  lookbooks    Lookbook[]
+  blogPosts    BlogPost[]      @relation("ProductPosts")
+  loyaltyPoints LoyaltyPoint[]
+}
+
+model ProductStore {
+  id        String  @id @default(cuid())
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  store     Store   @relation(fields: [storeId], references: [id])
+  storeId   String
+  featured  Boolean @default(false)
+  available Boolean @default(true)
+  @@unique([productId, storeId])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  parentId String?
+  products Product[]
+}
+
+model Variant {
+  id           String          @id @default(cuid())
+  product      Product         @relation(fields: [productId], references: [id])
+  productId    String
+  name         String
+  price        Decimal?        @db.Decimal(10,2)
+  options      VariantOption[]
+  stocks       Stock[]
+}
+
+model VariantOption {
+  id         String   @id @default(cuid())
+  variant    Variant  @relation(fields: [variantId], references: [id])
+  variantId  String
+  name       String
+  value      String
+  image      String?
+  priceDelta Decimal? @db.Decimal(10,2)
+}
+
+model Stock {
+  id            String     @id @default(cuid())
+  variant       Variant    @relation(fields: [variantId], references: [id])
+  variantId     String
+  warehouse     Warehouse  @relation(fields: [warehouseId], references: [id])
+  warehouseId   String
+  quantity      Int        @default(0)
+  backorderable Boolean    @default(false)
+  updatedAt     DateTime   @updatedAt
+  @@unique([variantId, warehouseId])
+}
+
+model Warehouse {
+  id         String           @id @default(cuid())
+  name       String
+  location   String
+  store      Store            @relation(fields: [storeId], references: [id])
+  storeId    String
+  stocks     Stock[]
+  movements  WarehouseMovement[]
+}
+
+model WarehouseMovement {
+  id          String       @id @default(cuid())
+  warehouse   Warehouse    @relation(fields: [warehouseId], references: [id])
+  warehouseId String
+  variant     Variant      @relation(fields: [variantId], references: [id])
+  variantId   String
+  quantity    Int
+  movement    MovementType
+  note        String?
+  createdAt   DateTime     @default(now())
+}
+
+model Order {
+  id           String        @id @default(cuid())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String
+  store        Store         @relation(fields: [storeId], references: [id])
+  storeId      String
+  status       OrderStatus   @default(PENDING)
+  total        Decimal       @db.Decimal(10,2)
+  currency     String        @default("TRY")
+  loyaltyUsed  Int           @default(0)
+  coupon       Coupon?       @relation(fields: [couponId], references: [id])
+  couponId     String?
+  items        OrderItem[]
+  shipments    Shipment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  String
+  variant    Variant? @relation(fields: [variantId], references: [id])
+  variantId  String?
+  quantity   Int      @default(1)
+  price      Decimal  @db.Decimal(10,2)
+}
+
+model Shipment {
+  id           String         @id @default(cuid())
+  order        Order          @relation(fields: [orderId], references: [id])
+  orderId      String
+  trackingCode String?
+  carrier      String?
+  status       ShipmentStatus @default(CREATED)
+  labelUrl     String?
+  metadata     Json?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Coupon {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  description   String?
+  percentage    Int?
+  amount        Decimal? @db.Decimal(10,2)
+  minimum       Decimal? @db.Decimal(10,2)
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  userId        String?
+  usages        Int      @default(0)
+  maxUsages     Int?
+}
+
+model LoyaltyPoint {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   String?
+  points    Int
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  createdAt DateTime @default(now())
+  @@unique([userId, productId])
+}
+
+model BlogPost {
+  id        String    @id @default(cuid())
+  title     String
+  titleEn   String?
+  slug      String    @unique
+  content   String
+  contentEn String?
+  products  Product[] @relation("ProductPosts")
+  published Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Lookbook {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  images    String[]
+  products  Product[]
+  createdAt DateTime @default(now())
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  store     Store    @relation(fields: [storeId], references: [id])
+  storeId   String
+  title     String
+  titleEn   String?
+  image     String
+  link      String
+  startsAt  DateTime?
+  endsAt    DateTime?
+  active    Boolean  @default(true)
+}
+
+model InfluencerLink {
+  id        String   @id @default(cuid())
+  store     Store    @relation(fields: [storeId], references: [id])
+  storeId   String
+  code      String   @unique
+  influencer String
+  commission Decimal @db.Decimal(5,2)
+  clicks    Int      @default(0)
+  orders    Order[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+}
+
+model Settings {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  value         Json
+  description   String?
+  updatedAt     DateTime @updatedAt
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  label     String
+  country   String
+  city      String
+  district  String
+  address   String
+  postal    String?
+  phone     String?
+  createdAt DateTime @default(now())
+}
