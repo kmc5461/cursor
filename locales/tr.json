@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "products": "Ürünler",
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "admin": "Yönetim"
+  },
+  "hero": {
+    "title": "Minimal ve zamansız parçalar",
+    "subtitle": "Kusursuz kalıp, doğal dokular ve modern silüetlerle gardırobunu yenile." 
+  },
+  "sections": {
+    "newArrivals": "Yeni Gelenler",
+    "featured": "Öne Çıkanlar",
+    "shopAll": "Tümünü Gör"
+  },
+  "about": {
+    "title": "Marka Hikayemiz",
+    "mission": "Kusursuz kaliteyi minimal tasarımla birleştiriyoruz.",
+    "vision": "Sürdürülebilir üretimle yeni nesil giyim standartları oluşturmak.",
+    "values": "Şeffaf tedarik zinciri, etik üretim ve zamansız stil."
+  },
+  "contact": {
+    "title": "Bize Ulaşın",
+    "address": "Bağdat Caddesi No:123 İstanbul",
+    "phone": "+90 212 000 00 00",
+    "email": "destek@kleidermafia.co",
+    "hours": "Hafta içi 10:00 - 19:00",
+    "whatsapp": "WhatsApp ile yazın"
+  },
+  "buttons": {
+    "addToCart": "Sepete Ekle",
+    "checkout": "Ödemeye Geç",
+    "viewProduct": "Ürünü Gör"
+  }
+}
