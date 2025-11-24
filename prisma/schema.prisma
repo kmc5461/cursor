@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  name          String?
+  password      String?
+  role          Role          @default(USER)
+  stores        Store[]
+  orders        Order[]
+  favorites     Favorite[]
+  loyaltyPoints LoyaltyPoint[]
+  addresses     Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  USER
+}
+
+model Store {
+  id         String        @id @default(cuid())
+  name       String
+  url        String        @unique
+  products   ProductStore[]
+  warehouses Warehouse[]
+  settings   Settings?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  title       String
+  slug        String          @unique
+  description String
+  descriptionEn String?
+  category    Category        @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  variants    Variant[]
+  tags        String[]
+  images      String[]
+  stores      ProductStore[]
+  seoTitle    String?
+  seoDescription String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ProductStore {
+  id        String   @id @default(cuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  store     Store    @relation(fields: [storeId], references: [id])
+  storeId   String
+  price     Decimal  @db.Decimal(10,2)
+  currency  String   @default("TRY")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  parentId  String?
+  products  Product[]
+}
+
+model Variant {
+  id         String          @id @default(cuid())
+  product    Product         @relation(fields: [productId], references: [id])
+  productId  String
+  name       String
+  options    VariantOption[]
+}
+
+model VariantOption {
+  id         String   @id @default(cuid())
+  variant    Variant  @relation(fields: [variantId], references: [id])
+  variantId  String
+  value      String
+  price      Decimal? @db.Decimal(10,2)
+  image      String?
+  material   String?
+  color      String?
+  size       String?
+  stock      Stock?
+}
+
+model Stock {
+  id             String    @id @default(cuid())
+  variantOption  VariantOption @relation(fields: [variantOptionId], references: [id])
+  variantOptionId String  @unique
+  warehouse      Warehouse? @relation(fields: [warehouseId], references: [id])
+  warehouseId    String?
+  quantity       Int       @default(0)
+  backorder      Boolean   @default(false)
+}
+
+model Warehouse {
+  id          String             @id @default(cuid())
+  name        String
+  location    String
+  store       Store             @relation(fields: [storeId], references: [id])
+  storeId     String
+  stocks      Stock[]
+  movements   WarehouseMovement[]
+}
+
+model WarehouseMovement {
+  id           String    @id @default(cuid())
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouseId  String
+  variantOption VariantOption @relation(fields: [variantOptionId], references: [id])
+  variantOptionId String
+  quantity     Int
+  direction    MovementType
+  createdAt    DateTime  @default(now())
+}
+
+enum MovementType {
+  IN
+  OUT
+  TRANSFER
+}
+
+model Order {
+  id          String       @id @default(cuid())
+  user        User?        @relation(fields: [userId], references: [id])
+  userId      String?
+  store       Store?       @relation(fields: [storeId], references: [id])
+  storeId     String?
+  items       OrderItem[]
+  status      OrderStatus  @default(PENDING)
+  total       Decimal      @db.Decimal(10,2)
+  currency    String       @default("TRY")
+  coupon      Coupon?      @relation(fields: [couponId], references: [id])
+  couponId    String?
+  loyaltyUsed Decimal?     @db.Decimal(10,2)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id          String        @id @default(cuid())
+  order       Order         @relation(fields: [orderId], references: [id])
+  orderId     String
+  product     Product       @relation(fields: [productId], references: [id])
+  productId   String
+  variant     VariantOption @relation(fields: [variantOptionId], references: [id])
+  variantOptionId String
+  quantity    Int
+  price       Decimal       @db.Decimal(10,2)
+}
+
+model Shipment {
+  id          String      @id @default(cuid())
+  order       Order       @relation(fields: [orderId], references: [id])
+  orderId     String
+  provider    String
+  tracking    String
+  status      String
+  labelUrl    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Coupon {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  type        CouponType
+  amount      Decimal    @db.Decimal(10,2)
+  minimum     Decimal?   @db.Decimal(10,2)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id])
+  active      Boolean    @default(true)
+}
+
+enum CouponType {
+  PERCENT
+  FIXED
+}
+
+model LoyaltyPoint {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Favorite {
+  id          String        @id @default(cuid())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  product     Product      @relation(fields: [productId], references: [id])
+  productId   String
+  createdAt   DateTime     @default(now())
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  titleEn     String?
+  slug        String   @unique
+  content     String
+  contentEn   String?
+  tags        String[]
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lookbook {
+  id          String   @id @default(cuid())
+  title       String
+  images      String[]
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Banner {
+  id          String   @id @default(cuid())
+  title       String
+  titleEn     String?
+  image       String
+  link        String
+  active      Boolean  @default(true)
+  startsAt    DateTime?
+  endsAt      DateTime?
+}
+
+model InfluencerLink {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  url         String
+  commission  Decimal  @db.Decimal(10,2)
+  clicks      Int      @default(0)
+  orders      Order[]
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+  action      String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+}
+
+model Settings {
+  id            String   @id @default(cuid())
+  store         Store    @relation(fields: [storeId], references: [id])
+  storeId       String   @unique
+  currency      String   @default("TRY")
+  locale        String   @default("tr")
+  theme         String   @default("light")
+  stripeKey     String?
+  redisUrl      String?
+  emailFrom     String?
+}

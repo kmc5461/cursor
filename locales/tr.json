@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "shop": "Mağaza",
+    "lookbook": "Lookbook",
+    "blog": "Blog",
+    "account": "Hesabım"
+  },
+  "hero": {
+    "title": "Minimal premium koleksiyon",
+    "cta": "Yeni Gelenler"
+  },
+  "footer": {
+    "title": "Modern lüksü keşfet"
+  }
+}
