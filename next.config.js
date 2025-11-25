@@ -2,10 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
+    domains: [],
   },
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ["framer-motion"],
   },
   output: "standalone",
