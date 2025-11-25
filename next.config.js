@@ -1,12 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
   images: {
-    domains: [],
+    unoptimized: true,
   },
+
+  // ‼ PWA, Critters, optimizeCss, optimizePackageImports tamamen kapatıldı.
   experimental: {
-    optimizePackageImports: ["framer-motion"],
+    optimizeCss: false,
+    optimizePackageImports: [],
   },
+
   output: "standalone",
 };
 
