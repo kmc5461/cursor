@@ -4,6 +4,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    optimizeCss: false,           // critters hatasını çözer
+    optimizePackageImports: ["framer-motion"],
+  },
   output: "standalone",
 };
 
