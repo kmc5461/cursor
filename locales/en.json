@@ -1,0 +1,16 @@
+{
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "lookbook": "Lookbook",
+    "blog": "Blog",
+    "account": "Account"
+  },
+  "hero": {
+    "title": "Minimal premium collection",
+    "cta": "New Arrivals"
+  },
+  "footer": {
+    "title": "Discover modern luxury"
+  }
+}
